@@ -11,6 +11,7 @@ import {
   postAnswersModels,
   postFamilyUserModel,
   getAssistantDoctorModel,
+  resetScoreModel,
 } from "../../Models/Assistant/AssistantModels";
 
 const { CurrentTime } = require("../../Helper/CurrentTime");
@@ -165,7 +166,14 @@ const getSubMainCategoryController = async (req, res) => {
   try {
     const { SubCategoryId } = req.body;
 
-    const result = await getSubMainCategoryModels(SubCategoryId);
+    const doctorId = 0;
+    const patientId = 0;
+
+    const result = await getSubMainCategoryModels(
+      SubCategoryId,
+      doctorId,
+      patientId
+    );
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -176,9 +184,14 @@ const getSubMainCategoryController = async (req, res) => {
 
 const getCategoryController = async (req, res) => {
   try {
-    const { SubCategoryId, patientId } = req.body;
+    const { SubCategoryId, patientId, employeeId } = req.body;
+    let doctorId = req.userData.userid;
 
-    const result = await getCategoryModels(SubCategoryId, patientId);
+    if (employeeId) {
+      doctorId = employeeId;
+    }
+
+    const result = await getCategoryModels(SubCategoryId, patientId, doctorId);
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
     console.error("Something went Wrong");
@@ -222,7 +235,7 @@ const postAnswersController = async (req, res) => {
       createdBy
     );
 
-    // return res.status(200).json(encrypt(result, true));
+    return res.status(200).json(encrypt(result, true));
   } catch (error) {
     console.error("Something went Wrong");
     return res.status(500).json({ error: "Something went Wrong" });
@@ -231,7 +244,20 @@ const postAnswersController = async (req, res) => {
 
 const getAssistantDoctorController = async (req, res) => {
   try {
-    const result = await await getAssistantDoctorModel(req.userData.userid);
+    const result = await getAssistantDoctorModel(req.userData.userid);
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Something went Wrong");
+    return res.status(500).json({ error: "Something went Wrong" });
+  }
+};
+
+const resetScoreController = async (req, res) => {
+  try {
+    const { scoreId } = req.body;    
+
+    const result = await resetScoreModel(scoreId);
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -250,4 +276,5 @@ module.exports = {
   postAnswersController,
   postFamilyUserController,
   getAssistantDoctorController,
+  resetScoreController,
 };

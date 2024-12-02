@@ -2,10 +2,20 @@ export const checkPatientMapQuery = `
 SELECT
   *
 FROM
-  public."refPatientMap"
+  public."refPatientMap" rpm
+  JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
 WHERE
-  "refDoctorId" = $1
-  AND "refPatientId" = $2
+  rdm."refDoctorId" = $1
+  AND rpm."refPatientId" = $2
+  `;
+
+export const checkDoctor = `
+  SELECT
+  *
+FROM
+  public."refDoctorMap" rdm
+WHERE
+  rdm."refDoctorId" = $1;
   `;
 
 export const addPatientMapQuery = `
@@ -18,4 +28,14 @@ export const addPatientMapQuery = `
   )
 VALUES
   ($1, $2, $3, $4);  
+  `;
+
+export const getDoctorMap = `
+  SELECT
+  *
+FROM
+  public."refDoctorMap"
+WHERE
+  "refHospitalId" = $1
+  AND "refDoctorId" = $2
   `;

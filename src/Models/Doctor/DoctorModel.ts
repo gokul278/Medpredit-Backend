@@ -1,6 +1,10 @@
 const DB = require("../../Helper/DBConncetion");
 
-const { checkPatientMapQuery, addPatientMapQuery } = require("./DoctorQuery");
+const {
+  checkPatientMapQuery,
+  addPatientMapQuery,
+  getDoctorMap,
+} = require("./DoctorQuery");
 
 const { CurrentTime } = require("../../Helper/CurrentTime");
 
@@ -28,7 +32,22 @@ export const addPatientMapModel = async (doctorId: any, patientId: any) => {
 
   try {
     const createdAt = CurrentTime();
-    const values = [doctorId, patientId, createdAt, doctorId];
+
+    const mapValues = [doctorId, patientId];
+
+    const hospitalId = "1";
+
+    const getDoctorHospitalMap = await connection.query(getDoctorMap, [
+      hospitalId,
+      doctorId,
+    ]);
+
+    const values = [
+      getDoctorHospitalMap.rows[0].refDMId,
+      patientId,
+      createdAt,
+      doctorId,
+    ];
 
     const result = await connection.query(addPatientMapQuery, values);
 

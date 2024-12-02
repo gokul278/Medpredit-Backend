@@ -83,13 +83,23 @@ FROM
 WHERE
   rct."refSubCategory" = '0'`;
 
-export const getSubMainCategoryQuery = `SELECT
- rct."refQCategoryId",
- rct."refCategoryLabel"
+export const getSubMainCategoryQuery = `
+SELECT
+  rct."refQCategoryId",
+  rct."refCategoryLabel"
 FROM
   public."refCategory" rct
 WHERE
   rct."refSubCategory" = $1`;
+
+//   SELECT
+//   rct."refQCategoryId",
+//   rct."refCategoryLabel"
+// FROM
+//   public."refCategory" rct
+// WHERE
+//   rct."refSubCategory" = $1
+//   AND rct."refHospitalId" = $2
 
 export const getFirstQuestionQuery = `
 SELECT
@@ -175,6 +185,7 @@ FROM
 WHERE
   rus."refUserId" = $1
   AND rus."refQCategoryId" = $2
+  AND DATE(rus."createdAt") = CURRENT_DATE;
 `;
 
 export const getPasswordQuery = `
@@ -199,4 +210,11 @@ JOIN
     public."Users" u ON CAST(ram."refDoctorId" AS TEXT) = CAST(u."refUserId" AS TEXT)
 WHERE 
     ram."refAssId" = $1;
+`;
+
+export const resetScoreQuery = `
+DELETE FROM
+  public."refUserScore" rus
+WHERE
+  rus."refScoreId" = $1;
 `;

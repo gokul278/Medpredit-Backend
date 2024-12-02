@@ -13,7 +13,8 @@ const {
   getQuestionsController,
   postAnswersController,
   postFamilyUserController,
-  getAssistantDoctorController
+  getAssistantDoctorController,
+  resetScoreController,
 } = require("../../Controller/Assistant/AssistantController");
 
 const AssistantRoutes = express.Router();
@@ -24,7 +25,11 @@ AssistantRoutes.post("/postNewPatient", verifyToken, postNewPatientController);
 
 AssistantRoutes.post("/postFamilyUser", verifyToken, postFamilyUserController);
 
-AssistantRoutes.post("/getMainCategory", verifyToken, getMainCategoryController);
+AssistantRoutes.post(
+  "/getMainCategory",
+  verifyToken,
+  getMainCategoryController
+);
 
 AssistantRoutes.post(
   "/getSubMainCategory",
@@ -38,7 +43,12 @@ AssistantRoutes.post("/getQuestions", verifyToken, getQuestionsController);
 
 AssistantRoutes.post("/postAnswers", verifyToken, postAnswersController);
 
-AssistantRoutes.get("/getAssistantDoctor", verifyToken, getAssistantDoctorController);
+AssistantRoutes.get(
+  "/getAssistantDoctor",
+  verifyToken,
+  getAssistantDoctorController
+);
 
+AssistantRoutes.post("/resetScore", verifyToken, resetScoreController);
 
 export default AssistantRoutes;

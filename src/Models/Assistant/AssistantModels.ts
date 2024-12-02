@@ -18,6 +18,7 @@ const {
   getUserScore,
   getPasswordQuery,
   getAssistantDoctorQuery,
+  resetScoreQuery,
 } = require("./AssistantQuery");
 
 const { checkPatientMapQuery } = require("../Doctor/DoctorQuery");
@@ -142,10 +143,20 @@ export const getMainCategoryModels = async (doctorId: any, patientId: any) => {
   }
 };
 
-export const getSubMainCategoryModels = async (categoryId: any) => {
+export const getSubMainCategoryModels = async (
+  categoryId: any,
+  doctorId: any,
+  patientId: any
+) => {
   const connection = await DB();
 
   try {
+    const doctorMapId = await connection.query(checkPatientMapQuery, [
+      doctorId,
+      patientId,
+    ]);
+
+    // const values = [categoryId, doctorMapId.rows[0].refHospitalId];
     const values = [categoryId];
 
     const result = await connection.query(getSubMainCategoryQuery, values);
@@ -162,10 +173,20 @@ export const getSubMainCategoryModels = async (categoryId: any) => {
   }
 };
 
-export const getCategoryModels = async (categoryId: any, patientId: any) => {
+export const getCategoryModels = async (
+  categoryId: any,
+  patientId: any,
+  doctorId: any
+) => {
   const connection = await DB();
 
   try {
+    const doctorMapId = await connection.query(checkPatientMapQuery, [
+      doctorId,
+      patientId,
+    ]);
+
+    // const values = [categoryId, doctorMapId.rows[0].refHospitalId];
     const values = [categoryId];
 
     const result = await connection.query(getSubMainCategoryQuery, values);
@@ -182,6 +203,7 @@ export const getCategoryModels = async (categoryId: any, patientId: any) => {
         refQCategoryId: element.refQCategoryId,
         refCategoryLabel: element.refCategoryLabel,
         refScore: score.rows.length > 0 ? score.rows[0].refTotalScore : null,
+        refScoreId: score.rows.length > 0 ? score.rows[0].refScoreId : null,
       });
     }
 
@@ -406,6 +428,22 @@ export const getAssistantDoctorModel = async (assistantId: any) => {
     throw error;
   } finally {
     await connection.query("COMMIT;");
+    await connection.end();
+  }
+};
+
+export const resetScoreModel = async (scoreId: any) => {
+  const connection = await DB();
+  try {
+    await connection.query(resetScoreQuery, [scoreId]);
+
+    return {
+      status: true,
+    };
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
     await connection.end();
   }
 };

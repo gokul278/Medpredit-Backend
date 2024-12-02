@@ -10,8 +10,6 @@ const usersignin = async (req, res) => {
     const { username, password } = req.body;
 
     const result = await usersigninModel(username, password);
-
-    // console.log(result+" "+username, password);
     
 
     return res.status(200).json(encrypt(result, true));
