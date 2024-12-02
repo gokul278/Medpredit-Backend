@@ -204,21 +204,25 @@ const getQuestionsController = async (req, res) => {
 
 const postAnswersController = async (req, res) => {
   try {
-    const { patientId, categoryId, answers } = req.body;
+    const { patientId, categoryId, answers, employeeId } = req.body;
 
-    const doctorId = req.userData.userid;
+    let doctorId = req.userData.userid;
 
-    const hospitalId = req.userData.hospitalid;
+    const createdBy = req.userData.userid;
+
+    if (employeeId) {
+      doctorId = employeeId;
+    }
 
     const result = await postAnswersModels(
       patientId,
       categoryId,
       answers,
       doctorId,
-      hospitalId
+      createdBy
     );
 
-    return res.status(200).json(encrypt(result, true));
+    // return res.status(200).json(encrypt(result, true));
   } catch (error) {
     console.error("Something went Wrong");
     return res.status(500).json({ error: "Something went Wrong" });

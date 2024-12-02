@@ -6,6 +6,7 @@ const {
   usersigninQuery,
   patientDataCheckQuery,
   doctorDataCheckQuery,
+  checkDoctorHospital
 } = require("./AuthenticationQuery");
 
 export const usersigninModel = async (username: string, password: string) => {
@@ -20,17 +21,14 @@ export const usersigninModel = async (username: string, password: string) => {
       const hashpass = result.rows[0].refUserHashedpass;
 
       const passStatus = await bcrypt.compare(password, hashpass);
-
+      
       if (passStatus) {
         const accessToken = jwt.sign(
           {
             userid: result.rows[0].refUserId,
-            hospitalid: result.rows[0].refHospitalId,
           },
           process.env.ACCESS_TOKEN
         );
-
-        if(result.rows[0].refRoleId)
 
         return {
           status: true,

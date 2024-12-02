@@ -138,9 +138,21 @@ WHERE
   AND "refQId" = $5
 `;
 
+const checkScoreAvailable = `
+  SELECT
+  *
+FROM
+  public."refUserScore"
+WHERE
+  DATE (
+    TO_TIMESTAMP("createdAt", 'DD/MM/YYYY, HH12:MI:SS AM')
+  ) = CURRENT_DATE AND "refUserId" = $1 AND "refPMId" = $2 AND "refQCategoryId" = $3; 
+`;
+
 export const addScores = `
 INSERT INTO public."refUserScore" (
 "refUserId",
+"refPMId",
 "refQCategoryId",
 "refTotalScore",
 "createdAt",
@@ -150,7 +162,8 @@ INSERT INTO public."refUserScore" (
  $2,
  $3,
  $4,
- $5
+ $5,
+ $6
  );
 `;
 

@@ -17,7 +17,7 @@ const {
   addScores,
   getUserScore,
   getPasswordQuery,
-  getAssistantDoctorQuery
+  getAssistantDoctorQuery,
 } = require("./AssistantQuery");
 
 const { checkPatientMapQuery } = require("../Doctor/DoctorQuery");
@@ -243,7 +243,7 @@ export const postAnswersModels = async (
   categoryId: any,
   answers: any,
   doctorId: any,
-  hospitalId: any
+  createdBy: any
 ) => {
   const connection = await DB();
   const createdAt = CurrentTime();
@@ -251,41 +251,49 @@ export const postAnswersModels = async (
   try {
     await connection.query("BEGIN;");
 
-    for (const element of answers) {
-      // Await the query to resolve the promise
-      const CheckOption = await connection.query(getAnswers, [
-        patientId,
-        element.questionId.toString(),
-      ]);
+    // for (const element of answers) {
+    //   // Await the query to resolve the promise
+    //   const CheckOption = await connection.query(getAnswers, [
+    //     patientId,
+    //     element.questionId.toString(),
+    //   ]);
 
-      if (CheckOption.rows.length > 0) {
-        const answerValue = [
-          element.answer,
-          createdAt,
-          doctorId,
-          patientId,
-          element.questionId,
-        ];
-        await connection.query(updateOptions, answerValue);
-      } else {
-        const answerValue = [
-          patientId,
-          categoryId,
-          element.questionId,
-          element.answer,
-          createdAt,
-          doctorId,
-        ];
-        await connection.query(addOptions, answerValue);
-      }
-    }
+    //   if (CheckOption.rows.length > 0) {
+    //     const answerValue = [
+    //       element.answer,
+    //       createdAt,
+    //       doctorId,
+    //       patientId,
+    //       element.questionId,
+    //     ];
+    //     await connection.query(updateOptions, answerValue);
+    //   } else {
+    //     const answerValue = [
+    //       patientId,
+    //       categoryId,
+    //       element.questionId,
+    //       element.answer,
+    //       createdAt,
+    //       doctorId,
+    //     ];
+    //     await connection.query(addOptions, answerValue);
+    //   }
+    // }
+
+    const map = await connection.query(checkPatientMapQuery, [
+      doctorId,
+      patientId,
+    ]);
+
+    const mapId = map.rows[0].refPMId;
 
     await connection.query(addScores, [
       patientId,
+      mapId,
       categoryId,
       100,
       createdAt,
-      doctorId,
+      createdBy,
     ]);
 
     await connection.query("COMMIT;");
@@ -381,18 +389,18 @@ export const postFamilyUserModel = async (values: any) => {
   }
 };
 
-export const getAssistantDoctorModel = async (assistantId:any) => {
+export const getAssistantDoctorModel = async (assistantId: any) => {
   const connection = await DB();
-  try{
+  try {
+    const result = await connection.query(getAssistantDoctorQuery, [
+      assistantId,
+    ]);
 
-    const result  = await connection.query(getAssistantDoctorQuery, [assistantId])
-
-    return({
-      status:true,
-      data: result.rows
-    })
-
-  }catch (error) {
+    return {
+      status: true,
+      data: result.rows,
+    };
+  } catch (error) {
     await connection.query("ROLLBACK;");
     console.error("Something went Wrong", error);
     throw error;
