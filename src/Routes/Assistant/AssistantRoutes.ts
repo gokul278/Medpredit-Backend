@@ -15,6 +15,9 @@ const {
   postFamilyUserController,
   getAssistantDoctorController,
   resetScoreController,
+  postPastReportController,
+  postCurrentReportContoller,
+  getPastReportController,
 } = require("../../Controller/Assistant/AssistantController");
 
 const AssistantRoutes = express.Router();
@@ -50,5 +53,15 @@ AssistantRoutes.get(
 );
 
 AssistantRoutes.post("/resetScore", verifyToken, resetScoreController);
+
+AssistantRoutes.post("/postPastReport", verifyToken, postPastReportController);
+
+AssistantRoutes.post(
+  "/postCurrentReport",
+  verifyToken,
+  postCurrentReportContoller
+);
+
+AssistantRoutes.post("/getPastReport", verifyToken, getPastReportController);
 
 export default AssistantRoutes;

@@ -12,6 +12,9 @@ import {
   postFamilyUserModel,
   getAssistantDoctorModel,
   resetScoreModel,
+  postPastReportModel,
+  postCurrentReportModels,
+  getPastReportModels
 } from "../../Models/Assistant/AssistantModels";
 
 const { CurrentTime } = require("../../Helper/CurrentTime");
@@ -255,7 +258,7 @@ const getAssistantDoctorController = async (req, res) => {
 
 const resetScoreController = async (req, res) => {
   try {
-    const { scoreId } = req.body;    
+    const { scoreId } = req.body;
 
     const result = await resetScoreModel(scoreId);
 
@@ -265,6 +268,52 @@ const resetScoreController = async (req, res) => {
     return res.status(500).json({ error: "Something went Wrong" });
   }
 };
+
+const postPastReportController = async (req, res) => {
+  try {
+    const { patientId } = req.body;
+
+    const result = await postPastReportModel(patientId);
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Something went Wrong");
+    return res.status(500).json({ error: "Something went Wrong" });
+  }
+};
+
+const postCurrentReportContoller = async (req, res) => {
+  try {
+    const { doctorId, patientId } = req.body;
+
+    let doctorIdVal = req.userData.userid;
+
+    if (doctorId) {
+      doctorIdVal = doctorId;
+    }
+
+    const result = await postCurrentReportModels(doctorIdVal, patientId);
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Something went Wrong");
+    return res.status(500).json({ error: "Something went Wrong" });
+  }
+};
+
+const getPastReportController = async(req,res) =>{
+
+  try {
+    const {scoreId} = req.body;
+
+    const result = await getPastReportModels(scoreId);
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Something went Wrong");
+    return res.status(500).json({ error: "Something went Wrong" });
+  }
+}
 
 module.exports = {
   getPatientDataController,
@@ -277,4 +326,7 @@ module.exports = {
   postFamilyUserController,
   getAssistantDoctorController,
   resetScoreController,
+  postPastReportController,
+  postCurrentReportContoller,
+  getPastReportController
 };

@@ -19,6 +19,10 @@ const {
   getPasswordQuery,
   getAssistantDoctorQuery,
   resetScoreQuery,
+  postPastReport,
+  postCurrentReport,
+  reportDetailsQuery,
+  questionDetailsQuery,
 } = require("./AssistantQuery");
 
 const { checkPatientMapQuery } = require("../Doctor/DoctorQuery");
@@ -439,6 +443,82 @@ export const resetScoreModel = async (scoreId: any) => {
 
     return {
       status: true,
+    };
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+export const postPastReportModel = async (patientId: any) => {
+  const connection = await DB();
+
+  try {
+    const values = [patientId];
+
+    const result = await connection.query(postPastReport, values);
+
+    return {
+      status: true,
+      data: result.rows,
+    };
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+export const postCurrentReportModels = async (
+  doctorId: any,
+  patientId: any
+) => {
+  const connection = await DB();
+
+  try {
+    const result = await connection.query(postCurrentReport, [
+      doctorId,
+      patientId,
+    ]);
+
+    let isCategoryZeroAvailable = result.rows.some(
+      (row) => row.refQCategoryId === "0"
+    );
+
+    if (result.rows.length === 0) {
+      isCategoryZeroAvailable = true;
+    }
+
+    return {
+      status: true,
+      currentCatgoryStatus: isCategoryZeroAvailable,
+    };
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+export const getPastReportModels = async (scoreId: any) => {
+  const connection = await DB();
+
+  try {
+    const reportDetails = await connection.query(reportDetailsQuery, [scoreId]);
+
+    const questionDetails = await connection.query(questionDetailsQuery, [
+      reportDetails.rows[0].createdAt,
+      reportDetails.rows[0].refUserId,
+    ]);
+
+    return {
+      status: true,
+      reportDetails: reportDetails.rows[0],
+      questionDetails: questionDetails.rows,
     };
   } catch (error) {
     console.error("Something went Wrong", error);

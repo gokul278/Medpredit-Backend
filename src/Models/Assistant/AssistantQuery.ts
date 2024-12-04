@@ -148,17 +148,6 @@ WHERE
   AND "refQId" = $5
 `;
 
-const checkScoreAvailable = `
-  SELECT
-  *
-FROM
-  public."refUserScore"
-WHERE
-  DATE (
-    TO_TIMESTAMP("createdAt", 'DD/MM/YYYY, HH12:MI:SS AM')
-  ) = CURRENT_DATE AND "refUserId" = $1 AND "refPMId" = $2 AND "refQCategoryId" = $3; 
-`;
-
 export const addScores = `
 INSERT INTO public."refUserScore" (
 "refUserId",
@@ -217,4 +206,134 @@ DELETE FROM
   public."refUserScore" rus
 WHERE
   rus."refScoreId" = $1;
+`;
+
+export const postPastReport = `
+  SELECT
+  rus."refScoreId",
+  rus."refUserId",
+  rus."refQCategoryId",
+  rus."refTotalScore",
+  TO_CHAR(CAST(rus."createdAt" AS TIMESTAMP), 'DD-MM-YYYY') AS "createdAt",
+  rpm."refDoctorId",
+  (
+    SELECT
+      u."refUserFname" || ' ' || u."refUserLname"
+    FROM
+      public."Users" u
+    WHERE
+      u."refUserId" = CAST(rpm."refDoctorId" AS INTEGER)
+  ) AS doctorName,
+  rdm."refHospitalId",
+  (
+    SELECT
+      rh."refHospitalName"
+    FROM
+      public."refHospital" rh
+    WHERE
+      rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
+  ) AS hospitalName,
+  (
+    SELECT
+      rh."refHospitalAddress"
+    FROM
+      public."refHospital" rh
+    WHERE
+      rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
+  ) AS hospitalAddress,
+  (
+    SELECT
+      rh."refHospitalPincode"
+    FROM
+      public."refHospital" rh
+    WHERE
+      rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
+  ) AS hospitalPincode
+FROM
+  public."refUserScore" rus
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
+  JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
+WHERE
+  rus."refUserId" = $1
+  AND rus."refQCategoryId" = '0'
+  AND DATE(rus."createdAt") < CURRENT_DATE;
+`;
+
+export const postCurrentReport = `
+SELECT
+  rus."refQCategoryId"
+FROM
+  public."refUserScore" rus
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
+  JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
+WHERE
+  rdm."refHospitalId" = '1'
+  AND rdm."refDoctorId" = $1
+  AND rus."refUserId" = $2
+  AND DATE (rus."createdAt") = CURRENT_DATE;
+`;
+
+export const reportDetailsQuery = `
+ SELECT
+  rus."refScoreId",
+  rus."refUserId",
+  rus."refQCategoryId",
+  rus."refTotalScore",
+  TO_CHAR(CAST(rus."createdAt" AS TIMESTAMP), 'DD-MM-YYYY') AS "createdAt",
+  rpm."refDoctorId",
+  (
+    SELECT
+      u."refUserFname" || ' ' || u."refUserLname"
+    FROM
+      public."Users" u
+    WHERE
+      u."refUserId" = CAST(rpm."refDoctorId" AS INTEGER)
+  ) AS doctorName,
+  rdm."refHospitalId",
+  (
+    SELECT
+      rh."refHospitalName"
+    FROM
+      public."refHospital" rh
+    WHERE
+      rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
+  ) AS hospitalName,
+  (
+    SELECT
+      rh."refHospitalAddress"
+    FROM
+      public."refHospital" rh
+    WHERE
+      rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
+  ) AS hospitalAddress,
+  (
+    SELECT
+      rh."refHospitalPincode"
+    FROM
+      public."refHospital" rh
+    WHERE
+      rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
+  ) AS hospitalPincode
+FROM
+  public."refUserScore" rus
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
+  JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
+WHERE
+  rus."refScoreId" = $1
+`;
+
+export const questionDetailsQuery = `
+SELECT
+  rc."refQCategoryId",
+  rc."refCategoryLabel",
+  rc."refSubCategory",
+  rus."refTotalScore"
+FROM
+  public."refCategory" rc
+LEFT JOIN
+  public."refUserScore" rus
+ON
+  CAST(rus."refQCategoryId" AS INTEGER) = rc."refQCategoryId"
+  AND DATE(rus."createdAt") = $1
+  AND rus."refUserId" = $2;
 `;

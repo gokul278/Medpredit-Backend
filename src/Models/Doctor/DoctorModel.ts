@@ -49,7 +49,7 @@ export const addPatientMapModel = async (doctorId: any, patientId: any) => {
       doctorId,
     ];
 
-    const result = await connection.query(addPatientMapQuery, values);
+    await connection.query(addPatientMapQuery, values);
 
     return {
       status: true,
