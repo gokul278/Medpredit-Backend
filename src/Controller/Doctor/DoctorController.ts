@@ -82,7 +82,7 @@ const addEmployeeController = async (req, res) => {
 
 const checkPatientMapController = async (req, res) => {
   try {
-    const { patientId, employeeId } = req.body;
+    const { patientId, employeeId, hospitalId } = req.body;
 
     let doctorId = req.userData.userid;
 
@@ -90,7 +90,8 @@ const checkPatientMapController = async (req, res) => {
       doctorId = employeeId;
     }
 
-    const result = await checkPatientMapModel(doctorId, patientId);
+    const result = await checkPatientMapModel(doctorId, patientId, hospitalId);
+
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
     console.error("Something went Wrong");
@@ -100,7 +101,7 @@ const checkPatientMapController = async (req, res) => {
 
 const addPatientMapController = async (req, res) => {
   try {
-    const { patientId, employeeId } = req.body;
+    const { patientId, employeeId, hospitalId } = req.body;
 
     let doctorId = req.userData.userid;
 
@@ -108,7 +109,7 @@ const addPatientMapController = async (req, res) => {
       doctorId = employeeId;
     }
 
-    const result = await addPatientMapModel(doctorId, patientId);
+    const result = await addPatientMapModel(doctorId, patientId, hospitalId);
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
     console.error("Something went Wrong");

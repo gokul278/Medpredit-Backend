@@ -8,11 +8,15 @@ const {
 
 const { CurrentTime } = require("../../Helper/CurrentTime");
 
-export const checkPatientMapModel = async (doctorId: any, patientId: any) => {
+export const checkPatientMapModel = async (
+  doctorId: any,
+  patientId: any,
+  hospitalId: any
+) => {
   const connection = await DB();
 
   try {
-    const values = [doctorId, patientId];
+    const values = [doctorId, patientId, hospitalId];
 
     const result = await connection.query(checkPatientMapQuery, values);
 
@@ -27,18 +31,20 @@ export const checkPatientMapModel = async (doctorId: any, patientId: any) => {
   }
 };
 
-export const addPatientMapModel = async (doctorId: any, patientId: any) => {
+export const addPatientMapModel = async (
+  doctorId: any,
+  patientId: any,
+  hospitalId: any
+) => {
   const connection = await DB();
 
   try {
     const createdAt = CurrentTime();
 
-    const mapValues = [doctorId, patientId];
-
-    const hospitalId = "1";
+    const hospitalID = hospitalId;
 
     const getDoctorHospitalMap = await connection.query(getDoctorMap, [
-      hospitalId,
+      hospitalID,
       doctorId,
     ]);
 

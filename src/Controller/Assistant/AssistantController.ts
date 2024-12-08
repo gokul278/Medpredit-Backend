@@ -14,7 +14,7 @@ import {
   resetScoreModel,
   postPastReportModel,
   postCurrentReportModels,
-  getPastReportModels
+  getPastReportModels,
 } from "../../Models/Assistant/AssistantModels";
 
 const { CurrentTime } = require("../../Helper/CurrentTime");
@@ -150,13 +150,13 @@ const getMainCategoryController = async (req, res) => {
   try {
     let doctorId = req.userData.userid;
 
-    const { employeeId, patientId } = req.body;
+    const { employeeId, patientId, hospitalId } = req.body;
 
     if (employeeId) {
       doctorId = employeeId;
     }
 
-    const result = await getMainCategoryModels(doctorId, patientId);
+    const result = await getMainCategoryModels(doctorId, patientId, hospitalId);
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -167,7 +167,7 @@ const getMainCategoryController = async (req, res) => {
 
 const getSubMainCategoryController = async (req, res) => {
   try {
-    const { SubCategoryId } = req.body;
+    const { SubCategoryId, hospitalId } = req.body;
 
     const doctorId = 0;
     const patientId = 0;
@@ -187,14 +187,14 @@ const getSubMainCategoryController = async (req, res) => {
 
 const getCategoryController = async (req, res) => {
   try {
-    const { SubCategoryId, patientId, employeeId } = req.body;
+    const { SubCategoryId, patientId, employeeId, hospitalId } = req.body;
     let doctorId = req.userData.userid;
 
     if (employeeId) {
       doctorId = employeeId;
     }
 
-    const result = await getCategoryModels(SubCategoryId, patientId, doctorId);
+    const result = await getCategoryModels(SubCategoryId, patientId, doctorId, hospitalId);
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
     console.error("Something went Wrong");
@@ -220,7 +220,7 @@ const getQuestionsController = async (req, res) => {
 
 const postAnswersController = async (req, res) => {
   try {
-    const { patientId, categoryId, answers, employeeId } = req.body;
+    const { patientId, categoryId, answers, employeeId, hospitalId } = req.body;
 
     let doctorId = req.userData.userid;
 
@@ -235,7 +235,8 @@ const postAnswersController = async (req, res) => {
       categoryId,
       answers,
       doctorId,
-      createdBy
+      createdBy,
+      hospitalId
     );
 
     return res.status(200).json(encrypt(result, true));
@@ -247,7 +248,9 @@ const postAnswersController = async (req, res) => {
 
 const getAssistantDoctorController = async (req, res) => {
   try {
-    const result = await getAssistantDoctorModel(req.userData.userid);
+    const { hospitalId } = req.body;
+
+    const result = await getAssistantDoctorModel(req.userData.userid,hospitalId);    
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -301,10 +304,9 @@ const postCurrentReportContoller = async (req, res) => {
   }
 };
 
-const getPastReportController = async(req,res) =>{
-
+const getPastReportController = async (req, res) => {
   try {
-    const {scoreId} = req.body;
+    const { scoreId } = req.body;
 
     const result = await getPastReportModels(scoreId);
 
@@ -313,7 +315,7 @@ const getPastReportController = async(req,res) =>{
     console.error("Something went Wrong");
     return res.status(500).json({ error: "Something went Wrong" });
   }
-}
+};
 
 module.exports = {
   getPatientDataController,
@@ -328,5 +330,5 @@ module.exports = {
   resetScoreController,
   postPastReportController,
   postCurrentReportContoller,
-  getPastReportController
+  getPastReportController,
 };

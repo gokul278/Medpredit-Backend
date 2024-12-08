@@ -10,7 +10,6 @@ const usersignin = async (req, res) => {
     const { username, password } = req.body;
 
     const result = await usersigninModel(username, password);
-    
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -47,6 +46,7 @@ const verifyEnteruserData = async (req, res) => {
     return res.status(500).json({ error: "Something went Wrong --44" });
   }
 };
+
 
 module.exports = {
   usersignin,

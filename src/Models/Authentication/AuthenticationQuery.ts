@@ -102,3 +102,26 @@ WHERE
     or rsd."refCRAddress" = ''
   )
   AND u."refUserId" = $1;`;
+
+export const assistantMapping = `
+  SELECT
+  rh."refHospitalId"
+FROM
+  public."refAssMap" ram
+  JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(ram."refDoctorId" AS INTEGER)
+  JOIN public."refHospital" rh ON rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
+WHERE
+  ram."refAssId" = $1
+  `;
+
+export const checkDoctorHospitalQuery = `
+ SELECT
+  rdm."refHospitalId",
+  rh."refHospitalName",
+  rh."refHospitalAddress" || ', ' || rh."refHospitalPincode" AS "FullAddress"
+FROM
+  public."refDoctorMap" rdm
+  JOIN public."refHospital" rh ON rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
+WHERE
+  rdm."refDoctorId" = $1;
+  `;

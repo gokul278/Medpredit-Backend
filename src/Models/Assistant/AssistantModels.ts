@@ -118,13 +118,18 @@ export const postNewPatientModels = async (values: any) => {
   }
 };
 
-export const getMainCategoryModels = async (doctorId: any, patientId: any) => {
+export const getMainCategoryModels = async (
+  doctorId: any,
+  patientId: any,
+  hospitalId: any
+) => {
   const connection = await DB();
 
   try {
     const checkPatient = await connection.query(checkPatientMapQuery, [
       doctorId,
       parseInt(patientId),
+      hospitalId,
     ]);
 
     if (checkPatient.rows.length > 0) {
@@ -155,12 +160,6 @@ export const getSubMainCategoryModels = async (
   const connection = await DB();
 
   try {
-    const doctorMapId = await connection.query(checkPatientMapQuery, [
-      doctorId,
-      patientId,
-    ]);
-
-    // const values = [categoryId, doctorMapId.rows[0].refHospitalId];
     const values = [categoryId];
 
     const result = await connection.query(getSubMainCategoryQuery, values);
@@ -180,17 +179,12 @@ export const getSubMainCategoryModels = async (
 export const getCategoryModels = async (
   categoryId: any,
   patientId: any,
-  doctorId: any
+  doctorId: any,
+  hospitalId: any
 ) => {
   const connection = await DB();
 
   try {
-    const doctorMapId = await connection.query(checkPatientMapQuery, [
-      doctorId,
-      patientId,
-    ]);
-
-    // const values = [categoryId, doctorMapId.rows[0].refHospitalId];
     const values = [categoryId];
 
     const result = await connection.query(getSubMainCategoryQuery, values);
@@ -201,6 +195,8 @@ export const getCategoryModels = async (
       const score = await connection.query(getUserScore, [
         patientId,
         element.refQCategoryId,
+        hospitalId,
+        doctorId,
       ]);
 
       resultArray.push({
@@ -269,7 +265,8 @@ export const postAnswersModels = async (
   categoryId: any,
   answers: any,
   doctorId: any,
-  createdBy: any
+  createdBy: any,
+  hospitalId: any
 ) => {
   const connection = await DB();
   const createdAt = CurrentTime();
@@ -309,6 +306,7 @@ export const postAnswersModels = async (
     const map = await connection.query(checkPatientMapQuery, [
       doctorId,
       patientId,
+      hospitalId,
     ]);
 
     const mapId = map.rows[0].refPMId;
@@ -415,11 +413,15 @@ export const postFamilyUserModel = async (values: any) => {
   }
 };
 
-export const getAssistantDoctorModel = async (assistantId: any) => {
+export const getAssistantDoctorModel = async (
+  assistantId: any,
+  hospitalId: any
+) => {
   const connection = await DB();
   try {
     const result = await connection.query(getAssistantDoctorQuery, [
       assistantId,
+      hospitalId,
     ]);
 
     return {

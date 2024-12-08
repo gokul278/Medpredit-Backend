@@ -171,10 +171,14 @@ SELECT
   *
 FROM
   public."refUserScore" rus
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
+  JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
 WHERE
   rus."refUserId" = $1
   AND rus."refQCategoryId" = $2
-  AND DATE(rus."createdAt") = CURRENT_DATE;
+  AND rdm."refHospitalId" = $3
+  AND rdm."refDoctorId" = $4
+  AND DATE (rus."createdAt") = CURRENT_DATE;
 `;
 
 export const getPasswordQuery = `
@@ -187,18 +191,19 @@ WHERE
 `;
 
 export const getAssistantDoctorQuery = `
-SELECT 
-    ram."refAMId", 
-    ram."refDoctorId", 
-    ram."refAssId",
-    u."refUserFname" AS "DoctorFirstName", 
-    u."refUserLname" AS "DoctorLastName"
-FROM 
-    public."refAssMap" ram
-JOIN 
-    public."Users" u ON CAST(ram."refDoctorId" AS TEXT) = CAST(u."refUserId" AS TEXT)
-WHERE 
-    ram."refAssId" = $1;
+SELECT
+  ram."refAMId",
+  ram."refDoctorId",
+  ram."refAssId",
+  u."refUserFname" AS "DoctorFirstName",
+  u."refUserLname" AS "DoctorLastName"
+FROM
+  public."refAssMap" ram
+  JOIN public."Users" u ON CAST(ram."refDoctorId" AS TEXT) = CAST(u."refUserId" AS TEXT)
+  JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(ram."refDoctorId" AS INTEGER)
+WHERE
+  ram."refAssId" = $1
+  AND rdm."refHospitalId" = $2
 `;
 
 export const resetScoreQuery = `

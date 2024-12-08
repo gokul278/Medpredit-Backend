@@ -6,7 +6,8 @@ const {
   usersigninQuery,
   patientDataCheckQuery,
   doctorDataCheckQuery,
-  checkDoctorHospital,
+  assistantMapping,
+  checkDoctorHospitalQuery,
 } = require("./AuthenticationQuery");
 
 export const usersigninModel = async (username: string, password: string) => {
@@ -17,25 +18,57 @@ export const usersigninModel = async (username: string, password: string) => {
 
     const result = await connection.query(usersigninQuery, values);
 
-    if (result.rows.length == 1) {
+    if (result.rows.length > 0) {
       const hashpass = result.rows[0].refUserHashedpass;
 
       const passStatus = await bcrypt.compare(password, hashpass);
 
-      if (passStatus) {
-        const accessToken = jwt.sign(
-          {
-            userid: result.rows[0].refUserId,
-          },
-          process.env.ACCESS_TOKEN
-        );
+      const accessToken = jwt.sign(
+        {
+          userid: result.rows[0].refUserId,
+        },
+        process.env.ACCESS_TOKEN
+      );
 
-        return {
-          status: true,
-          message: "Signin Successfull",
-          roleType: result.rows[0].refRoleId,
-          token: accessToken,
-        };
+      if (passStatus) {
+        if (result.rows[0].refRoleId === 1) {
+          const checkDoctorHospital = await connection.query(
+            checkDoctorHospitalQuery,
+            [result.rows[0].refUserId]
+          );
+
+          if (checkDoctorHospital.rows.length === 1) {
+            return {
+              status: true,
+              message: "Signin Successfull",
+              roleType: result.rows[0].refRoleId,
+              hospitaId: checkDoctorHospital.rows[0].refHospitalId,
+              token: accessToken,
+              action: "single",
+            };
+          } else {
+            return {
+              status: true,
+              message: "Signin Successfull",
+              roleType: result.rows[0].refRoleId,
+              hospitals: checkDoctorHospital.rows,
+              token: accessToken,
+              action: "multiple",
+            };
+          }
+        } else if (result.rows[0].refRoleId === 2) {
+          const hospitaId = await connection.query(assistantMapping, [
+            result.rows[0].refUserId,
+          ]);
+
+          return {
+            status: true,
+            message: "Signin Successfull",
+            roleType: result.rows[0].refRoleId,
+            hospitaId: hospitaId.rows[0].refHospitalId,
+            token: accessToken,
+          };
+        }
       } else {
         return { status: false, message: "Invalid Username or Password" };
       }

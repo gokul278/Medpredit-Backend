@@ -46,7 +46,7 @@ AssistantRoutes.post("/getQuestions", verifyToken, getQuestionsController);
 
 AssistantRoutes.post("/postAnswers", verifyToken, postAnswersController);
 
-AssistantRoutes.get(
+AssistantRoutes.post(
   "/getAssistantDoctor",
   verifyToken,
   getAssistantDoctorController

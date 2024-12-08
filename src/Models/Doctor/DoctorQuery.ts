@@ -7,6 +7,7 @@ FROM
 WHERE
   rdm."refDoctorId" = $1
   AND rpm."refPatientId" = $2
+  AND rdm."refHospitalId" = $3
   `;
 
 export const checkDoctor = `
