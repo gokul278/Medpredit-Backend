@@ -15,6 +15,8 @@ import {
   postPastReportModel,
   postCurrentReportModels,
   getPastReportModels,
+  getUserScoreVerifyModel,
+  getProfileModel
 } from "../../Models/Assistant/AssistantModels";
 
 const { CurrentTime } = require("../../Helper/CurrentTime");
@@ -194,7 +196,12 @@ const getCategoryController = async (req, res) => {
       doctorId = employeeId;
     }
 
-    const result = await getCategoryModels(SubCategoryId, patientId, doctorId, hospitalId);
+    const result = await getCategoryModels(
+      SubCategoryId,
+      patientId,
+      doctorId,
+      hospitalId
+    );
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
     console.error("Something went Wrong");
@@ -250,7 +257,10 @@ const getAssistantDoctorController = async (req, res) => {
   try {
     const { hospitalId } = req.body;
 
-    const result = await getAssistantDoctorModel(req.userData.userid,hospitalId);    
+    const result = await getAssistantDoctorModel(
+      req.userData.userid,
+      hospitalId
+    );
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -261,9 +271,21 @@ const getAssistantDoctorController = async (req, res) => {
 
 const resetScoreController = async (req, res) => {
   try {
-    const { scoreId } = req.body;
+    const { refPatientId, refQCategoryId, refHospitalId, employeeId } =
+      req.body;
 
-    const result = await resetScoreModel(scoreId);
+    let doctorId = req.userData.userid;
+
+    if (employeeId) {
+      doctorId = employeeId;
+    }
+
+    const result = await resetScoreModel(
+      refPatientId,
+      refQCategoryId,
+      refHospitalId,
+      doctorId
+    );
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -317,6 +339,29 @@ const getPastReportController = async (req, res) => {
   }
 };
 
+const getUserScoreVerifyController = async (req, res) => {
+  try {
+    const { categoryId } = req.body;
+
+    const result = await getUserScoreVerifyModel(categoryId);
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Something went Wrong");
+    return res.status(500).json({ error: "Something went Wrong" });
+  }
+};
+
+const getProfileController = async (req, res) => {
+  try {
+    const result = await getProfileModel(req.userData.userid);
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Something went Wrong");
+    return res.status(500).json({ error: "Something went Wrong" });
+  }
+};
+
 module.exports = {
   getPatientDataController,
   postNewPatientController,
@@ -331,4 +376,6 @@ module.exports = {
   postPastReportController,
   postCurrentReportContoller,
   getPastReportController,
+  getUserScoreVerifyController,
+  getProfileController,
 };

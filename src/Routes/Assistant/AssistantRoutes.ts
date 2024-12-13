@@ -18,6 +18,8 @@ const {
   postPastReportController,
   postCurrentReportContoller,
   getPastReportController,
+  getUserScoreVerifyController,
+  getProfileController,
 } = require("../../Controller/Assistant/AssistantController");
 
 const AssistantRoutes = express.Router();
@@ -63,5 +65,13 @@ AssistantRoutes.post(
 );
 
 AssistantRoutes.post("/getPastReport", verifyToken, getPastReportController);
+
+AssistantRoutes.post(
+  "/getUserScoreVerify",
+  verifyToken,
+  getUserScoreVerifyController
+);
+
+AssistantRoutes.get("/getProfile", verifyToken, getProfileController);
 
 export default AssistantRoutes;

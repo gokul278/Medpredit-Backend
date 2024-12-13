@@ -1,3 +1,9 @@
+import { Alcohol } from "../../Helper/Formula/Alcohol";
+import { BMI } from "../../Helper/Formula/BMI";
+import { Dietary } from "../../Helper/Formula/Dietary";
+import { PhysicalAactivity } from "../../Helper/Formula/PhysicalActivity";
+import { Stress } from "../../Helper/Formula/Stress";
+
 const DB = require("../../Helper/DBConncetion");
 
 const {
@@ -10,11 +16,7 @@ const {
   getMainCategoryQuery,
   getSubMainCategoryQuery,
   getOptions,
-  getAnswers,
-  addOptions,
-  updateOptions,
   getFirstQuestionQuery,
-  addScores,
   getUserScore,
   getPasswordQuery,
   getAssistantDoctorQuery,
@@ -23,10 +25,17 @@ const {
   postCurrentReport,
   reportDetailsQuery,
   questionDetailsQuery,
+  resetPatientTransactionQuery,
+  getLatestPTIdQuery,
+  addPatientTransactionQuery,
+  addUserScoreDetailsQuery,
+  getResetScoreRefQuery,
+  getUserScoreVerifyQuery,
+  getProfileQuery,
 } = require("./AssistantQuery");
 
 const { checkPatientMapQuery } = require("../Doctor/DoctorQuery");
-const { CurrentTime } = require("../../Helper/CurrentTime");
+const { CurrentTime, getDateOnly } = require("../../Helper/CurrentTime");
 
 export const getPatientDataModels = async (mobileNumber: any) => {
   const connection = await DB();
@@ -199,11 +208,16 @@ export const getCategoryModels = async (
         doctorId,
       ]);
 
+      const UserScoreVerify = await connection.query(getUserScoreVerifyQuery, [
+        element.refQCategoryId,
+      ]);
+
       resultArray.push({
         refQCategoryId: element.refQCategoryId,
+        UserScoreVerify: UserScoreVerify.rows,
         refCategoryLabel: element.refCategoryLabel,
-        refScore: score.rows.length > 0 ? score.rows[0].refTotalScore : null,
-        refScoreId: score.rows.length > 0 ? score.rows[0].refScoreId : null,
+        refScore: score.rows.length > 0 ? score.rows[0].refPTScore : null,
+        refScoreId: score.rows.length > 0 ? score.rows[0].refPTId : null,
       });
     }
 
@@ -271,37 +285,24 @@ export const postAnswersModels = async (
   const connection = await DB();
   const createdAt = CurrentTime();
 
+  const PTcreatedDate = getDateOnly();
+
   try {
     await connection.query("BEGIN;");
 
-    // for (const element of answers) {
-    //   // Await the query to resolve the promise
-    //   const CheckOption = await connection.query(getAnswers, [
-    //     patientId,
-    //     element.questionId.toString(),
-    //   ]);
+    const getQuestion = await connection.query(getFirstQuestionQuery, [
+      categoryId,
+    ]);
 
-    //   if (CheckOption.rows.length > 0) {
-    //     const answerValue = [
-    //       element.answer,
-    //       createdAt,
-    //       doctorId,
-    //       patientId,
-    //       element.questionId,
-    //     ];
-    //     await connection.query(updateOptions, answerValue);
-    //   } else {
-    //     const answerValue = [
-    //       patientId,
-    //       categoryId,
-    //       element.questionId,
-    //       element.answer,
-    //       createdAt,
-    //       doctorId,
-    //     ];
-    //     await connection.query(addOptions, answerValue);
-    //   }
-    // }
+    const mappedResult: any = await Promise.all(
+      getQuestion.rows.map(async (question) => {
+        const optionsValue = question.refOptions.split(",").map(Number);
+
+        const optionResult = await connection.query(getOptions, [optionsValue]);
+
+        return optionResult.rows;
+      })
+    );
 
     const map = await connection.query(checkPatientMapQuery, [
       doctorId,
@@ -311,16 +312,56 @@ export const postAnswersModels = async (
 
     const mapId = map.rows[0].refPMId;
 
-    await connection.query(addScores, [
-      patientId,
-      mapId,
-      categoryId,
-      100,
-      createdAt,
-      createdBy,
-    ]);
+    console.log("---------->", categoryId);
 
-    await connection.query("COMMIT;");
+    let score = [];
+    let multiCategoryId = [];
+
+    if (categoryId === "8") {
+      score = PhysicalAactivity(answers);
+      multiCategoryId = ["8", "15", "16", "17", "19", "20", "21"];
+    } else if (categoryId === "9") {
+      score = Stress(answers, mappedResult);
+      multiCategoryId = ["9", "25", "26", "27", "28"];
+    } else if (categoryId === "11") {
+      score = Alcohol(answers, mappedResult);
+      multiCategoryId = ["11", "29", "30", "31", "32"];
+    } else if (categoryId === "12") {
+    } else if (categoryId === "13") {
+      score = BMI(answers);
+      multiCategoryId = ["13", "22", "23", "24"];
+    }
+
+    const getlatestPTId = await connection.query(getLatestPTIdQuery);
+
+    let lastestPTId = 1;
+
+    if (getlatestPTId.rows.length > 0) {
+      lastestPTId = parseInt(getlatestPTId.rows[0].refPTId) + 1;
+    }
+
+    await Promise.all(
+      score.map(async (element, index) => {
+        console.log(lastestPTId + index, element, multiCategoryId[index]);
+
+        await connection.query(addPatientTransactionQuery, [
+          lastestPTId + index,
+          mapId,
+          element,
+          "1",
+          PTcreatedDate,
+          createdAt,
+          createdBy,
+        ]);
+
+        await connection.query(addUserScoreDetailsQuery, [
+          lastestPTId + index,
+          multiCategoryId[index],
+          createdAt,
+          createdBy,
+        ]);
+      })
+    );
 
     return {
       status: true,
@@ -330,6 +371,7 @@ export const postAnswersModels = async (
     console.error("Something went Wrong", error);
     throw error;
   } finally {
+    await connection.query("COMMIT;");
     await connection.end();
   }
 };
@@ -438,18 +480,55 @@ export const getAssistantDoctorModel = async (
   }
 };
 
-export const resetScoreModel = async (scoreId: any) => {
+export const resetScoreModel = async (
+  refPatientId: any,
+  refQCategoryId: any,
+  refHospitalId: any,
+  doctorId: any
+) => {
   const connection = await DB();
   try {
-    await connection.query(resetScoreQuery, [scoreId]);
+    await connection.query("BEGIN;");
+
+    let multiCategoryId = [];
+
+    console.log(refQCategoryId);
+
+    if (refQCategoryId === 8) {
+      multiCategoryId = ["8", "15", "16", "17", "19", "20", "21"];
+    } else if (refQCategoryId === 13) {
+      multiCategoryId = ["13", "22", "23", "24"];
+    } else if (refQCategoryId === 9) {
+      multiCategoryId = ["9", "25", "26", "27", "28"];
+    } else if (refQCategoryId === 11) {
+      multiCategoryId = ["11", "29", "30", "31", "32"];
+    }
+
+    await Promise.all(
+      multiCategoryId.map(async (element) => {
+        const refScore = await connection.query(getResetScoreRefQuery, [
+          refPatientId,
+          doctorId,
+          refHospitalId,
+          element,
+        ]);
+
+        await connection.query(resetScoreQuery, [refScore.rows[0].refUSDId]);
+        await connection.query(resetPatientTransactionQuery, [
+          refScore.rows[0].refPTId,
+        ]);
+      })
+    );
 
     return {
       status: true,
     };
   } catch (error) {
+    await connection.query("ROLLBACK;");
     console.error("Something went Wrong", error);
     throw error;
   } finally {
+    await connection.query("COMMIT;");
     await connection.end();
   }
 };
@@ -521,6 +600,46 @@ export const getPastReportModels = async (scoreId: any) => {
       status: true,
       reportDetails: reportDetails.rows[0],
       questionDetails: questionDetails.rows,
+    };
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+export const getUserScoreVerifyModel = async (categoryId: any) => {
+  const connection = await DB();
+
+  try {
+    const result = await connection.query(getUserScoreVerifyQuery, [
+      categoryId,
+    ]);
+
+    console.log(categoryId, result.rows);
+
+    return {
+      status: true,
+      scoreVerify: result.rows,
+    };
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+export const getProfileModel = async (userId: any) => {
+  const connection = await DB();
+
+  try {
+    const result = await connection.query(getProfileQuery, [userId]);
+
+    return {
+      status: true,
+      data: result.rows[0],
     };
   } catch (error) {
     console.error("Something went Wrong", error);

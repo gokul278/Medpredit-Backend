@@ -81,7 +81,7 @@ export const getMainCategoryQuery = `SELECT
 FROM
   public."refCategory" rct
 WHERE
-  rct."refSubCategory" = '0'`;
+  rct."refQSubCategory" = '0'`;
 
 export const getSubMainCategoryQuery = `
 SELECT
@@ -90,16 +90,7 @@ SELECT
 FROM
   public."refCategory" rct
 WHERE
-  rct."refSubCategory" = $1`;
-
-//   SELECT
-//   rct."refQCategoryId",
-//   rct."refCategoryLabel"
-// FROM
-//   public."refCategory" rct
-// WHERE
-//   rct."refSubCategory" = $1
-//   AND rct."refHospitalId" = $2
+  rct."refQSubCategory" = $1`;
 
 export const getFirstQuestionQuery = `
 SELECT
@@ -113,7 +104,7 @@ ORDER BY
 `;
 
 export const getOptions = `
-SELECT ro."refOptionId", ro."refOptionLabel", ro."forwardQId", ro."backwardQId"
+SELECT ro."refOptionId", ro."refOptionLabel", ro."forwardQId", ro."backwardQId", ro."refOptionMark"
 FROM public."refOptions" ro 
 WHERE ro."refOptionId" = ANY($1);
 `;
@@ -148,37 +139,56 @@ WHERE
   AND "refQId" = $5
 `;
 
-export const addScores = `
-INSERT INTO public."refUserScore" (
-"refUserId",
-"refPMId",
-"refQCategoryId",
-"refTotalScore",
-"createdAt",
-"createdBy"
-) VALUES (
- $1,
- $2,
- $3,
- $4,
- $5,
- $6
- );
+export const getLatestPTIdQuery = `
+SELECT
+  rpt."refPTId"
+FROM
+  public."refPatientTransaction" rpt
+ORDER BY
+  rpt."refPTId" DESC;
+`;
+
+export const addPatientTransactionQuery = `
+insert into
+  public."refPatientTransaction" (
+    "refPTId",
+    "refPMId",
+    "refPTScore",
+    "refPTStatus",
+    "refPTcreatedDate",
+    "createdAt",
+    "createdBy"
+  )
+values
+  ($1, $2, $3, $4, $5, $6, $7)
+`;
+
+export const addUserScoreDetailsQuery = `
+insert into
+  public."refUserScoreDetail" (
+    "refPTId",
+    "refQCategoryId",
+    "createdAt",
+    "createdBy"
+  )
+values
+  ($1, $2, $3, $4)
 `;
 
 export const getUserScore = `
 SELECT
   *
 FROM
-  public."refUserScore" rus
-  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
+  public."refUserScoreDetail" rusd
+  JOIN public."refPatientTransaction" rpt ON rpt."refPTId" = CAST(rusd."refPTId" AS INTEGER)
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rpt."refPMId" AS INTEGER)
   JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
 WHERE
-  rus."refUserId" = $1
-  AND rus."refQCategoryId" = $2
+  rpm."refPatientId" = $1
+  AND rusd."refQCategoryId" = $2
   AND rdm."refHospitalId" = $3
   AND rdm."refDoctorId" = $4
-  AND DATE (rus."createdAt") = CURRENT_DATE;
+  AND DATE (rpt."refPTcreatedDate") = CURRENT_DATE
 `;
 
 export const getPasswordQuery = `
@@ -206,11 +216,34 @@ WHERE
   AND rdm."refHospitalId" = $2
 `;
 
+export const getResetScoreRefQuery = `
+SELECT
+  *
+FROM
+  public."refUserScoreDetail" rusd
+  JOIN public."refPatientTransaction" rpt ON rpt."refPTId" = CAST(rusd."refPTId" AS INTEGER)
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rpt."refPMId" AS INTEGER)
+  JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
+WHERE
+  rpm."refPatientId" = $1
+  AND rdm."refDoctorId" = $2
+  AND rdm."refHospitalId" = $3
+  AND rusd."refQCategoryId" = $4
+  AND DATE (rpt."refPTcreatedDate") = CURRENT_DATE
+`;
+
 export const resetScoreQuery = `
 DELETE FROM
-  public."refUserScore" rus
+  public."refUserScoreDetail" rusd
 WHERE
-  rus."refScoreId" = $1;
+  rusd."refUSDId" = $1;
+`;
+
+export const resetPatientTransactionQuery = `
+DELETE FROM
+  public."refPatientTransaction" rpt
+WHERE
+  rpt."refPTId" = $1;
 `;
 
 export const postPastReport = `
@@ -255,7 +288,7 @@ export const postPastReport = `
       rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
   ) AS hospitalPincode
 FROM
-  public."refUserScore" rus
+  public."refUserScoreDetail" rus
   JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
   JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
 WHERE
@@ -268,7 +301,7 @@ export const postCurrentReport = `
 SELECT
   rus."refQCategoryId"
 FROM
-  public."refUserScore" rus
+  public."refUserScoreDetail" rus
   JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
   JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
 WHERE
@@ -320,7 +353,7 @@ export const reportDetailsQuery = `
       rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
   ) AS hospitalPincode
 FROM
-  public."refUserScore" rus
+  public."refUserScoreDetail" rus
   JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
   JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
 WHERE
@@ -331,14 +364,37 @@ export const questionDetailsQuery = `
 SELECT
   rc."refQCategoryId",
   rc."refCategoryLabel",
-  rc."refSubCategory",
+  rc."refQSubCategory",
   rus."refTotalScore"
 FROM
   public."refCategory" rc
 LEFT JOIN
-  public."refUserScore" rus
+  public."refUserScoreDetail" rus
 ON
   CAST(rus."refQCategoryId" AS INTEGER) = rc."refQCategoryId"
   AND DATE(rus."createdAt") = $1
   AND rus."refUserId" = $2;
 `;
+
+export const getUserScoreVerifyQuery = `
+SELECT
+  *
+FROM
+  public."refUserScoreVerify" rusv
+WHERE
+  rusv."refQCategoryId" = $1
+`;
+
+export const getProfileQuery = `
+SELECT
+  u."refUserCustId",
+  (CASE 
+     WHEN u."refRoleId" = 1 THEN 'Dr. ' 
+     ELSE '' 
+   END) || u."refUserFname" || ' ' || u."refUserLname" AS "refUserName",
+  u."refRoleId"
+FROM
+  public."Users" u
+WHERE
+  u."refUserId" = $1;
+  `;
