@@ -16,6 +16,9 @@ export const usersigninModel = async (username: string, password: string) => {
   try {
     const values = [username];
 
+    console.log(values);
+    
+
     const result = await connection.query(usersigninQuery, values);
 
     if (result.rows.length > 0) {

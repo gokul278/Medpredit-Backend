@@ -3,6 +3,7 @@ import { BMI } from "../../Helper/Formula/BMI";
 import { Dietary } from "../../Helper/Formula/Dietary";
 import { PhysicalAactivity } from "../../Helper/Formula/PhysicalActivity";
 import { Stress } from "../../Helper/Formula/Stress";
+import { Tabacco } from "../../Helper/Formula/Tobacco";
 
 const DB = require("../../Helper/DBConncetion");
 
@@ -323,6 +324,20 @@ export const postAnswersModels = async (
     } else if (categoryId === "9") {
       score = Stress(answers, mappedResult);
       multiCategoryId = ["9", "25", "26", "27", "28"];
+    } else if (categoryId === "10") {
+      score = Tabacco(answers);
+      multiCategoryId = [
+        "10",
+        "33",
+        "34",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+      ];
     } else if (categoryId === "11") {
       score = Alcohol(answers, mappedResult);
       multiCategoryId = ["11", "29", "30", "31", "32"];
@@ -500,6 +515,19 @@ export const resetScoreModel = async (
       multiCategoryId = ["13", "22", "23", "24"];
     } else if (refQCategoryId === 9) {
       multiCategoryId = ["9", "25", "26", "27", "28"];
+    } else if (refQCategoryId === 10) {
+      multiCategoryId = [
+        "10",
+        "33",
+        "34",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+      ];
     } else if (refQCategoryId === 11) {
       multiCategoryId = ["11", "29", "30", "31", "32"];
     }
