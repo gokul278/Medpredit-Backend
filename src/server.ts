@@ -17,10 +17,10 @@ app.use(cors({
     origin: "*"
 }));
 
-app.listen(process.env.PORT)
-
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", AuthenticationRoutes);
 app.use("/api/v1", AssistantRoutes);
 app.use("/api/v1", DoctorRoutes);
 app.use("/api/v1", PatientRoutes);
+
+app.listen(process.env.PORT)

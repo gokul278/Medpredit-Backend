@@ -247,11 +247,11 @@ WHERE
 `;
 
 export const postPastReport = `
-  SELECT
-  rus."refScoreId",
-  rus."refUserId",
+SELECT
+  rus."refUSDId",
+  rpm."refPatientId",
   rus."refQCategoryId",
-  rus."refTotalScore",
+  rpt."refPTScore",
   TO_CHAR(CAST(rus."createdAt" AS TIMESTAMP), 'DD-MM-YYYY') AS "createdAt",
   rpm."refDoctorId",
   (
@@ -289,26 +289,37 @@ export const postPastReport = `
   ) AS hospitalPincode
 FROM
   public."refUserScoreDetail" rus
-  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
+  JOIN public."refPatientTransaction" rpt ON rpt."refPTId" = CAST(rus."refPTId" AS INTEGER)
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rpt."refPMId" AS INTEGER)
   JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
 WHERE
-  rus."refUserId" = $1
+  rpm."refPatientId" = $1
   AND rus."refQCategoryId" = '0'
-  AND DATE(rus."createdAt") < CURRENT_DATE;
+  AND DATE(rpt."refPTcreatedDate") <= CURRENT_DATE;
 `;
 
 export const postCurrentReport = `
 SELECT
-  rus."refQCategoryId"
+  *
 FROM
-  public."refUserScoreDetail" rus
-  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rus."refPMId" AS INTEGER)
+  public."refUserScoreDetail" rusd
+  JOIN public."refPatientTransaction" rpt ON rpt."refPTId" = CAST(rusd."refPTId" AS INTEGER)
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rpt."refPMId" AS INTEGER)
   JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
 WHERE
   rdm."refHospitalId" = '1'
   AND rdm."refDoctorId" = $1
-  AND rus."refUserId" = $2
-  AND DATE (rus."createdAt") = CURRENT_DATE;
+  AND rpm."refPatientId" = $2
+  AND DATE(rusd."createdAt") = CURRENT_DATE;
+`;
+
+export const getCatgeoryQuery = `
+SELECT
+  rc."refCategoryLabel"
+FROM
+  public."refCategory" rc
+WHERE
+  rc."refQCategoryId" = $1
 `;
 
 export const reportDetailsQuery = `

@@ -8,6 +8,8 @@ const {
   doctorDataCheckQuery,
   assistantMapping,
   checkDoctorHospitalQuery,
+  changePasswordQuery,
+  updatePasswordQuery,
 } = require("./AuthenticationQuery");
 
 export const usersigninModel = async (username: string, password: string) => {
@@ -17,7 +19,6 @@ export const usersigninModel = async (username: string, password: string) => {
     const values = [username];
 
     console.log(values);
-    
 
     const result = await connection.query(usersigninQuery, values);
 
@@ -100,5 +101,52 @@ export const verifyEnteruserDataModel = async (
     const result = await connection.query(patientDataCheckQuery, [userId]);
 
     return { status: result.rows[0].result };
+  }
+};
+
+export const changePasswordModel = async (
+  userid: any,
+  pastPassword: any,
+  currentPassword: any
+) => {
+  const connection = await DB();
+
+  try {
+    const result = await connection.query(changePasswordQuery, [
+      userid,
+      pastPassword,
+    ]);
+
+    if (result.rows.length > 0) {
+      const saltRounds = 10; // Adjust the salt rounds as needed
+      const hashedPassword = await bcrypt.hash(currentPassword, saltRounds);
+
+      const result = await connection.query(updatePasswordQuery, [
+        currentPassword,
+        hashedPassword,
+        userid,
+      ]);
+
+      if (result) {
+        return {
+          status: true,
+        };
+      } else {
+        return {
+          status: false,
+          message: "Try Again",
+        };
+      }
+    } else {
+      return {
+        status: false,
+        message: "Invalid Current Password",
+      };
+    }
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.end();
   }
 };

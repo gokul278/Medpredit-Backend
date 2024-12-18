@@ -14,11 +14,26 @@ export const CurrentTime = (): string => {
   return new Intl.DateTimeFormat("en-IN", options).format(systemTime);
 };
 
-export const getDateOnly = ():string =>{
+export const getDateOnly = (): string => {
   const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0'); // Ensures two digits
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const year = today.getFullYear();
+  const day = String(today.getDate()).padStart(2, "0"); // Ensures two digits
+  const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const year = today.getFullYear();
 
-    return `${day}/${month}/${year}`;
-}
+  return `${day}/${month}/${year}`;
+};
+
+export const calculateAge = (dateOfBirth) => {
+  const dob = new Date(dateOfBirth); // Parse the given date
+  const today = new Date(); // Current date
+
+  let age = today.getFullYear() - dob.getFullYear(); // Calculate year difference
+  const monthDiff = today.getMonth() - dob.getMonth();
+  const dayDiff = today.getDate() - dob.getDate();
+  // Adjust age if the current month/day is earlier than the birth month/day
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    age--;
+  }
+
+  return age;
+};

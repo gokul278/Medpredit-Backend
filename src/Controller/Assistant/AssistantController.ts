@@ -16,7 +16,7 @@ import {
   postCurrentReportModels,
   getPastReportModels,
   getUserScoreVerifyModel,
-  getProfileModel
+  getProfileModel,
 } from "../../Models/Assistant/AssistantModels";
 
 const { CurrentTime } = require("../../Helper/CurrentTime");
@@ -321,7 +321,7 @@ const postCurrentReportContoller = async (req, res) => {
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
-    console.error("Something went Wrong");
+    console.error("Something went Wrong", error);
     return res.status(500).json({ error: "Something went Wrong" });
   }
 };

@@ -1,4 +1,5 @@
 import {
+  changePasswordModel,
   usersigninModel,
   verifyEnteruserDataModel,
 } from "../../Models/Authentication/AuthenticationModels";
@@ -8,6 +9,8 @@ const jwt = require("jsonwebtoken");
 const usersignin = async (req, res) => {
   try {
     const { username, password } = req.body;
+
+    console.log("Hello");
 
     const result = await usersigninModel(username, password);
 
@@ -47,9 +50,28 @@ const verifyEnteruserData = async (req, res) => {
   }
 };
 
+const changePasswordController = async (req, res) => {
+  try {
+    const { pastPassword, currentPassword } = req.body;
+
+    const result = await changePasswordModel(
+      req.userData.userid,
+      pastPassword,
+      currentPassword
+    );
+
+    console.log(result);
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Something went Wrong");
+    return res.status(500).json({ error: "Something went Wrong --44" });
+  }
+};
 
 module.exports = {
   usersignin,
   verifyToken,
   verifyEnteruserData,
+  changePasswordController,
 };

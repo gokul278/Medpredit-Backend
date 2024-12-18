@@ -125,3 +125,24 @@ FROM
 WHERE
   rdm."refDoctorId" = $1;
   `;
+
+export const changePasswordQuery = `
+SELECT
+  u."refUserId",
+  rud."refUserPassword"
+FROM
+  public."Users" u
+  JOIN public."refUserDomain" rud ON rud."refUserId" = u."refUserId"
+WHERE
+  u."refUserId" = $1 AND rud."refUserPassword" = $2;
+`;
+
+export const updatePasswordQuery = `
+UPDATE
+  public."refUserDomain"
+SET
+  "refUserPassword" = $1,
+  "refUserHashedpass" = $2
+WHERE
+  "refUserId" = $3;
+`;

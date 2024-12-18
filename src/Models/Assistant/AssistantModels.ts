@@ -33,6 +33,7 @@ const {
   getResetScoreRefQuery,
   getUserScoreVerifyQuery,
   getProfileQuery,
+  getCatgeoryQuery,
 } = require("./AssistantQuery");
 
 const { checkPatientMapQuery } = require("../Doctor/DoctorQuery");
@@ -593,6 +594,9 @@ export const postCurrentReportModels = async (
       patientId,
     ]);
 
+    let categoryId = "";
+    let categoryLabel = "";
+
     let isCategoryZeroAvailable = result.rows.some(
       (row) => row.refQCategoryId === "0"
     );
@@ -601,9 +605,27 @@ export const postCurrentReportModels = async (
       isCategoryZeroAvailable = true;
     }
 
+    if (!isCategoryZeroAvailable) {
+      const validCategory = ["8", "9", "10", "11", "13"];
+
+      for (const element of validCategory) {
+        if (!result.rows.some((row) => row.refQCategoryId === element)) {
+          isCategoryZeroAvailable = false;
+          categoryId = element;
+          const result = await connection.query(getCatgeoryQuery, [element]);
+          categoryLabel = result.rows[0].refCategoryLabel;
+          break;
+        } else {
+          isCategoryZeroAvailable = "report";
+        }
+      }
+    }
+
     return {
       status: true,
       currentCatgoryStatus: isCategoryZeroAvailable,
+      categoryId: categoryId,
+      categoryLabel: categoryLabel,
     };
   } catch (error) {
     console.error("Something went Wrong", error);
