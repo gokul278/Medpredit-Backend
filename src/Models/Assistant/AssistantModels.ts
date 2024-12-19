@@ -1,3 +1,4 @@
+import { calculateDaysDifference } from "../../Helper/CurrentTime";
 import { Alcohol } from "../../Helper/Formula/Alcohol";
 import { BMI } from "../../Helper/Formula/BMI";
 import { Dietary } from "../../Helper/Formula/Dietary";
@@ -36,6 +37,7 @@ const {
   getUserScoreVerifyQuery,
   getProfileQuery,
   getCatgeoryQuery,
+  getReportSessionQuery,
 } = require("./AssistantQuery");
 
 const { checkPatientMapQuery } = require("../Doctor/DoctorQuery");
@@ -171,15 +173,43 @@ export const getSubMainCategoryModels = async (
   patientId: any
 ) => {
   const connection = await DB();
-
   try {
     const values = [categoryId];
 
     const result = await connection.query(getSubMainCategoryQuery, values);
 
+    const getReportSession = await connection.query(getReportSessionQuery, [
+      patientId,
+    ]);
+
+    let latestreportDate = null;
+
+    if (getReportSession.rows.length > 0) {
+      const todayDate = getDateOnly();
+
+      const refPTcreatedDate: string =
+        getReportSession.rows[0].refPTcreatedDate;
+
+      function parseDateOnly(dateStr: string): Date {
+        const [day, month, year] = dateStr.split("/").map(Number);
+        return new Date(year, month - 1, day); // Create Date object with date only
+      }
+
+      // Parse the dates
+      const today: Date = parseDateOnly(todayDate);
+      const createdDate: Date = parseDateOnly(refPTcreatedDate);
+
+      const diffInMilliseconds: number =
+        today.getTime() - createdDate.getTime(); // Use getTime() to get the timestamp
+      const diffInDays: number = diffInMilliseconds / (1000 * 60 * 60 * 24); // Convert to days
+
+      latestreportDate = Math.abs(diffInDays);
+    }
+
     return {
       status: true,
       data: result.rows,
+      latestreportDate: latestreportDate,
     };
   } catch (error) {
     console.error("Something went Wrong", error);

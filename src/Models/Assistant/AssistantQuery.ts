@@ -410,3 +410,15 @@ FROM
 WHERE
   u."refUserId" = $1;
   `;
+
+export const getReportSessionQuery = `
+  SELECT
+  *
+FROM
+  public."refUserScoreDetail" rusd
+  JOIN public."refPatientTransaction" rpt ON rpt."refPTId" = CAST(rusd."refPTId" AS INTEGER)
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rpt."refPMId" AS INTEGER)
+WHERE
+  rpm."refPatientId" = $1
+  ORDER BY rusd."refUSDId" DESC
+  `;

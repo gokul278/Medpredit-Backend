@@ -71,3 +71,16 @@ export const getHoursAndMinutesBetween = (
 
   return { hours, minutes };
 };
+
+export const calculateDaysDifference = (date1, date2) =>{
+  // Parse the dates
+  const d1:any = new Date(date1);
+  const d2:any = new Date(date2);
+  
+  // Calculate the difference in time (milliseconds)
+  const diffInTime = Math.abs(d2 - d1);
+  
+  // Convert the difference to days
+  const diffInDays = Math.ceil(diffInTime / (1000 * 60 * 60 * 24));
+  return diffInDays;
+}

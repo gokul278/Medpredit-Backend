@@ -169,10 +169,9 @@ const getMainCategoryController = async (req, res) => {
 
 const getSubMainCategoryController = async (req, res) => {
   try {
-    const { SubCategoryId, hospitalId } = req.body;
+    const { SubCategoryId, patientId } = req.body;
 
     const doctorId = 0;
-    const patientId = 0;
 
     const result = await getSubMainCategoryModels(
       SubCategoryId,
