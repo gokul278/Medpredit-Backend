@@ -1,7 +1,9 @@
 import { Alcohol } from "../../Helper/Formula/Alcohol";
 import { BMI } from "../../Helper/Formula/BMI";
 import { Dietary } from "../../Helper/Formula/Dietary";
+import { FamilyHistory } from "../../Helper/Formula/FamilyHistory";
 import { PhysicalAactivity } from "../../Helper/Formula/PhysicalActivity";
+import { Sleep } from "../../Helper/Formula/Sleep";
 import { Stress } from "../../Helper/Formula/Stress";
 import { Tabacco } from "../../Helper/Formula/Tobacco";
 
@@ -346,6 +348,12 @@ export const postAnswersModels = async (
     } else if (categoryId === "13") {
       score = BMI(answers);
       multiCategoryId = ["13", "22", "23", "24"];
+    } else if (categoryId === "43") {
+      score = Sleep(answers, mappedResult);
+      multiCategoryId = ["43", "44", "45", "46", "47", "48", "49", "50"];
+    } else if (categoryId === "51") {
+      score = FamilyHistory(answers, mappedResult);
+      multiCategoryId = ["51"];
     }
 
     const getlatestPTId = await connection.query(getLatestPTIdQuery);
@@ -459,7 +467,7 @@ export const postFamilyUserModel = async (values: any) => {
     await connection.query(postnewUserDomain, newUserDomainValue);
 
     return {
-      status: true,
+      status: false,
     };
   } catch (error) {
     await connection.query("ROLLBACK;");
@@ -531,6 +539,10 @@ export const resetScoreModel = async (
       ];
     } else if (refQCategoryId === 11) {
       multiCategoryId = ["11", "29", "30", "31", "32"];
+    } else if (refQCategoryId === 43) {
+      multiCategoryId = ["43", "44", "45", "46", "47", "48", "49", "50"];
+    } else if (refQCategoryId === 51) {
+      multiCategoryId = ["51"];
     }
 
     await Promise.all(
@@ -606,10 +618,10 @@ export const postCurrentReportModels = async (
     }
 
     if (!isCategoryZeroAvailable) {
-      const validCategory = ["8", "9", "10", "11", "13"];
+      const validCategory = ["8", "9", "10", "11", "13", "43", "51"];
 
       for (const element of validCategory) {
-        if (!result.rows.some((row) => row.refQCategoryId === element)) {
+        if (!result.rows.some((row: any) => row.refQCategoryId === element)) {
           isCategoryZeroAvailable = false;
           categoryId = element;
           const result = await connection.query(getCatgeoryQuery, [element]);

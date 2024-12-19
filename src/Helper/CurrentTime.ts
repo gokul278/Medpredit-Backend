@@ -37,3 +37,37 @@ export const calculateAge = (dateOfBirth) => {
 
   return age;
 };
+
+export const getHoursAndMinutesBetween = (
+  startTime: string,
+  endTime: string
+) => {
+  // Parse the times as Date objects with the same date for comparison
+  const [startHour, startMinute] = startTime.split(":").map(Number);
+  const [endHour, endMinute] = endTime.split(":").map(Number);
+
+  // Set the date for both times
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setHours(startHour, startMinute, 0, 0);
+
+  const endDate = new Date(today);
+  endDate.setHours(endHour, endMinute, 0, 0);
+
+  // If the end time is earlier than the start time, assume it's the next day
+  if (endDate < startDate) {
+    endDate.setDate(endDate.getDate() + 1);
+  }
+
+  // Calculate the difference in milliseconds
+  const differenceMs = endDate.getTime() - startDate.getTime();
+
+  // Convert milliseconds to total minutes
+  const totalMinutes = Math.floor(differenceMs / (1000 * 60));
+
+  // Extract hours and minutes
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return { hours, minutes };
+};

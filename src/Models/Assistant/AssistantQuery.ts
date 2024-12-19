@@ -295,7 +295,8 @@ FROM
 WHERE
   rpm."refPatientId" = $1
   AND rus."refQCategoryId" = '0'
-  AND DATE(rpt."refPTcreatedDate") <= CURRENT_DATE;
+  AND DATE(rpt."refPTcreatedDate") <= CURRENT_DATE
+  ORDER BY rus."refUSDId" DESC
 `;
 
 export const postCurrentReport = `
