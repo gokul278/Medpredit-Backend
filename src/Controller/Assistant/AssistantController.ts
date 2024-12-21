@@ -17,6 +17,7 @@ import {
   getPastReportModels,
   getUserScoreVerifyModel,
   getProfileModel,
+  getQuestionScoreModel,
 } from "../../Models/Assistant/AssistantModels";
 
 const { CurrentTime } = require("../../Helper/CurrentTime");
@@ -361,6 +362,19 @@ const getProfileController = async (req, res) => {
   }
 };
 
+const getQuestionScoreController = async (req, res) => {
+  try {
+    const { patientId, categoryId } = req.body;
+
+    const result = await getQuestionScoreModel(patientId, categoryId);
+
+    return res.status(200).json(encrypt(result, true));
+  } catch (error) {
+    console.error("Something went Wrong");
+    return res.status(500).json({ error: "Something went Wrong" });
+  }
+};
+
 module.exports = {
   getPatientDataController,
   postNewPatientController,
@@ -377,4 +391,5 @@ module.exports = {
   getPastReportController,
   getUserScoreVerifyController,
   getProfileController,
+  getQuestionScoreController
 };

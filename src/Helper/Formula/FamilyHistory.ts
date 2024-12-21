@@ -1,11 +1,20 @@
 export const FamilyHistory = (answers: any, mappedResult: any) => {
-  const q1 = answers.find((element) => element.questionId === 114)
-    ? answers.find((element) => element.questionId === 114)
-    : 0;
+  answers.sort((a, b) => a.questionId - b.questionId);
 
-  const q1ans =
-    mappedResult.flat().find((option) => option.refOptionId === q1.answer)
-      ?.refOptionMark || 0;
+  let result = [];
 
-  return [q1ans];
+  answers.forEach((element, index) => {
+    if (index === 0) {
+      result.push(0);
+    } else {
+      result.push(
+        mappedResult
+          .flat()
+          .find((option) => option.refOptionId === element.answer)
+          ?.refOptionLabel
+      );
+    }
+  });
+
+  return result;
 };

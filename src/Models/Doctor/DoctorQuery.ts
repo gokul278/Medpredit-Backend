@@ -175,3 +175,7 @@ export const getScoreVerifyReport = `
 FROM
   public."refUserScoreVerify"
   `;
+
+export const getAllCategoryFamilyHistory = `
+  SELECT * FROM public."refCategory" rc WHERE rc."refQSubCategory" = '51'
+  `;

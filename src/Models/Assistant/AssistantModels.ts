@@ -3,10 +3,12 @@ import { Alcohol } from "../../Helper/Formula/Alcohol";
 import { BMI } from "../../Helper/Formula/BMI";
 import { Dietary } from "../../Helper/Formula/Dietary";
 import { FamilyHistory } from "../../Helper/Formula/FamilyHistory";
+import { MenstrualHistory } from "../../Helper/Formula/MenstrualHistory";
 import { PhysicalAactivity } from "../../Helper/Formula/PhysicalActivity";
 import { Sleep } from "../../Helper/Formula/Sleep";
 import { Stress } from "../../Helper/Formula/Stress";
 import { Tabacco } from "../../Helper/Formula/Tobacco";
+import { getQuestionScoreQuery } from "./AssistantQuery";
 
 const DB = require("../../Helper/DBConncetion");
 
@@ -383,7 +385,10 @@ export const postAnswersModels = async (
       multiCategoryId = ["43", "44", "45", "46", "47", "48", "49", "50"];
     } else if (categoryId === "51") {
       score = FamilyHistory(answers, mappedResult);
-      multiCategoryId = ["51"];
+      multiCategoryId = ["51", "52", "53", "54", "55", "56", "57", "58"];
+    } else if (categoryId === "5") {
+      score = MenstrualHistory(answers, mappedResult);
+      multiCategoryId = ["5", "59", "60", "61", "62", "63", "64", "65"];
     }
 
     const getlatestPTId = await connection.query(getLatestPTIdQuery);
@@ -572,7 +577,9 @@ export const resetScoreModel = async (
     } else if (refQCategoryId === 43) {
       multiCategoryId = ["43", "44", "45", "46", "47", "48", "49", "50"];
     } else if (refQCategoryId === 51) {
-      multiCategoryId = ["51"];
+      multiCategoryId = ["51", "52", "53", "54", "55", "56", "57", "58"];
+    } else if (refQCategoryId === 5) {
+      multiCategoryId = ["5", "59", "60", "61", "62", "63", "64", "65"];
     }
 
     await Promise.all(
@@ -648,7 +655,7 @@ export const postCurrentReportModels = async (
     }
 
     if (!isCategoryZeroAvailable) {
-      const validCategory = ["8", "9", "10", "11", "13", "43", "51"];
+      const validCategory = ["8", "9", "10", "11", "13", "43", "51", "5"];
 
       for (const element of validCategory) {
         if (!result.rows.some((row: any) => row.refQCategoryId === element)) {
@@ -732,6 +739,29 @@ export const getProfileModel = async (userId: any) => {
     return {
       status: true,
       data: result.rows[0],
+    };
+  } catch (error) {
+    console.error("Something went Wrong", error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+export const getQuestionScoreModel = async (
+  patientId: any,
+  categoryId: any
+) => {
+  const connection = await DB();
+
+  try {
+    const result = await connection.query(getQuestionScoreQuery, [
+      patientId,
+      categoryId,
+    ]);
+
+    return {
+      status: result.rows.length > 0 ? true : false,
     };
   } catch (error) {
     console.error("Something went Wrong", error);

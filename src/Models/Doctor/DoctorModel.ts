@@ -5,6 +5,7 @@ import {
   getLatestPTIdQuery,
 } from "../Assistant/AssistantQuery";
 import {
+  getAllCategoryFamilyHistory,
   getAllCategoryQuery,
   getAllScoreQuery,
   getAllScoreVerifyQuery,
@@ -290,12 +291,16 @@ export const getReportPDFModel = async (patientId: any, reportDate: any) => {
 
     const scoreVerifyResult = await connection.query(getScoreVerifyReport);
 
+    const categoryResult = await connection.query(getAllCategoryFamilyHistory);
+
     return {
       status: true,
       doctorDetails: doctorResult.rows[0],
       patientDetails: patientResult.rows[0],
       scoreResult: scoreResult.rows,
       scoreVerifyResult: scoreVerifyResult.rows,
+      generateDate: scoreResult.rows[0].refPTcreatedDate,
+      categoryResult: categoryResult.rows,
     };
   } catch (error) {
     console.error("Something went Wrong", error);
