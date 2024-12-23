@@ -13,9 +13,11 @@ const app = express();
 
 app.use(express.json());
 
-app.use(cors({
-    origin: "*"
-}));
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", AuthenticationRoutes);
@@ -23,4 +25,4 @@ app.use("/api/v1", AssistantRoutes);
 app.use("/api/v1", DoctorRoutes);
 app.use("/api/v1", PatientRoutes);
 
-app.listen(process.env.PORT)
+app.listen(process.env.PORT);

@@ -377,6 +377,28 @@ export const postAnswersModels = async (
       score = Alcohol(answers, mappedResult);
       multiCategoryId = ["11", "29", "30", "31", "32"];
     } else if (categoryId === "12") {
+      score = Dietary(answers, mappedResult);
+      multiCategoryId = [
+        "12",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75",
+        "76",
+        "77",
+        "78",
+        "79",
+        "80",
+        "81",
+        "82",
+        "83",
+      ];
     } else if (categoryId === "13") {
       score = BMI(answers);
       multiCategoryId = ["13", "22", "23", "24"];
@@ -574,6 +596,28 @@ export const resetScoreModel = async (
       ];
     } else if (refQCategoryId === 11) {
       multiCategoryId = ["11", "29", "30", "31", "32"];
+    } else if (refQCategoryId === 12) {
+      multiCategoryId = [
+        "12",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75",
+        "76",
+        "77",
+        "78",
+        "79",
+        "80",
+        "81",
+        "82",
+        "83",
+      ];
     } else if (refQCategoryId === 43) {
       multiCategoryId = ["43", "44", "45", "46", "47", "48", "49", "50"];
     } else if (refQCategoryId === 51) {
@@ -655,7 +699,7 @@ export const postCurrentReportModels = async (
     }
 
     if (!isCategoryZeroAvailable) {
-      const validCategory = ["8", "9", "10", "11", "13", "43", "51", "5"];
+      const validCategory = ["8", "9", "10", "11", "13", "43", "51", "5", "12"];
 
       for (const element of validCategory) {
         if (!result.rows.some((row: any) => row.refQCategoryId === element)) {
