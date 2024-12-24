@@ -8,6 +8,7 @@ import { PhysicalAactivity } from "../../Helper/Formula/PhysicalActivity";
 import { Sleep } from "../../Helper/Formula/Sleep";
 import { Stress } from "../../Helper/Formula/Stress";
 import { Tabacco } from "../../Helper/Formula/Tobacco";
+import { Vitals } from "../../Helper/Formula/Vitals";
 import { getQuestionScoreQuery } from "./AssistantQuery";
 
 const DB = require("../../Helper/DBConncetion");
@@ -411,6 +412,21 @@ export const postAnswersModels = async (
     } else if (categoryId === "5") {
       score = MenstrualHistory(answers, mappedResult);
       multiCategoryId = ["5", "59", "60", "61", "62", "63", "64", "65"];
+    } else if (categoryId === "6") {
+      score = Vitals(answers, mappedResult);
+      multiCategoryId = [
+        "6",
+        "84",
+        "85",
+        "86",
+        "87",
+        "88",
+        "89",
+        "90",
+        "91",
+        "92",
+        "93",
+      ];
     }
 
     const getlatestPTId = await connection.query(getLatestPTIdQuery);
@@ -624,6 +640,20 @@ export const resetScoreModel = async (
       multiCategoryId = ["51", "52", "53", "54", "55", "56", "57", "58"];
     } else if (refQCategoryId === 5) {
       multiCategoryId = ["5", "59", "60", "61", "62", "63", "64", "65"];
+    } else if (refQCategoryId === 6) {
+      multiCategoryId = [
+        "6",
+        "84",
+        "85",
+        "86",
+        "87",
+        "88",
+        "89",
+        "90",
+        "91",
+        "92",
+        "93",
+      ];
     }
 
     await Promise.all(
@@ -699,7 +729,18 @@ export const postCurrentReportModels = async (
     }
 
     if (!isCategoryZeroAvailable) {
-      const validCategory = ["8", "9", "10", "11", "13", "43", "51", "5", "12"];
+      const validCategory = [
+        "8",
+        "9",
+        "10",
+        "11",
+        "13",
+        "43",
+        "51",
+        "5",
+        "12",
+        "6",
+      ];
 
       for (const element of validCategory) {
         if (!result.rows.some((row: any) => row.refQCategoryId === element)) {
