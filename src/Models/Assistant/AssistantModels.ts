@@ -707,7 +707,8 @@ export const postPastReportModel = async (patientId: any) => {
 
 export const postCurrentReportModels = async (
   doctorId: any,
-  patientId: any
+  patientId: any,
+  patientGender: any
 ) => {
   const connection = await DB();
 
@@ -729,18 +730,16 @@ export const postCurrentReportModels = async (
     }
 
     if (!isCategoryZeroAvailable) {
-      const validCategory = [
-        "8",
-        "9",
-        "10",
-        "11",
-        "13",
-        "43",
-        "51",
-        "5",
-        "12",
-        "6",
-      ];
+      const validCategory = ["8", "9", "10", "11", "13", "43", "51", "12"];
+
+      if (patientGender === "female") {
+        validCategory.push("5");
+        validCategory.push("6");
+      } else {
+        validCategory.push("6");
+      }
+
+      console.log(validCategory);
 
       for (const element of validCategory) {
         if (!result.rows.some((row: any) => row.refQCategoryId === element)) {

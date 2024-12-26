@@ -309,7 +309,7 @@ const postPastReportController = async (req, res) => {
 
 const postCurrentReportContoller = async (req, res) => {
   try {
-    const { doctorId, patientId } = req.body;
+    const { doctorId, patientId, patientGender } = req.body;
 
     let doctorIdVal = req.userData.userid;
 
@@ -317,7 +317,11 @@ const postCurrentReportContoller = async (req, res) => {
       doctorIdVal = doctorId;
     }
 
-    const result = await postCurrentReportModels(doctorIdVal, patientId);
+    const result = await postCurrentReportModels(
+      doctorIdVal,
+      patientId,
+      patientGender
+    );
 
     return res.status(200).json(encrypt(result, true));
   } catch (error) {
@@ -391,5 +395,5 @@ module.exports = {
   getPastReportController,
   getUserScoreVerifyController,
   getProfileController,
-  getQuestionScoreController
+  getQuestionScoreController,
 };

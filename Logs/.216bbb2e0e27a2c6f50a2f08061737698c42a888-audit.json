@@ -6,11 +6,6 @@
     "auditLog": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\.216bbb2e0e27a2c6f50a2f08061737698c42a888-audit.json",
     "files": [
         {
-            "date": 1734496414539,
-            "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-18.log",
-            "hash": "c6380afca6249fefb1bdcee262af72f20358a9f7df8e6ff1b149cc9d00d8fee1"
-        },
-        {
             "date": 1734581454193,
             "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-19.log",
             "hash": "f3aaafa67b0c272e1b7a9fa1518d8a479d137f435d22cf57ee7bd5eca931d296"
@@ -39,6 +34,16 @@
             "date": 1735014077939,
             "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-24.log",
             "hash": "43345cef46ab35cc93f35c21f2ef4dbf84da4e788e06b0bb3d9593430936f2da"
+        },
+        {
+            "date": 1735096973082,
+            "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-25.log",
+            "hash": "7d0dd76477b8339633bf6a1c3746a7c12a09df480531672e0d01cde1dd5b3511"
+        },
+        {
+            "date": 1735185388672,
+            "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-26.log",
+            "hash": "25c5d4d3bae058f532decccc8a6af3c7451da446ada1473b38ec2b1b594971e4"
         }
     ],
     "hashType": "sha256"
