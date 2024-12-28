@@ -6,21 +6,6 @@
     "auditLog": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\.216bbb2e0e27a2c6f50a2f08061737698c42a888-audit.json",
     "files": [
         {
-            "date": 1734581454193,
-            "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-19.log",
-            "hash": "f3aaafa67b0c272e1b7a9fa1518d8a479d137f435d22cf57ee7bd5eca931d296"
-        },
-        {
-            "date": 1734665866504,
-            "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-20.log",
-            "hash": "ee7e320034963672c7d503f0b7c71ca7bdebc6e2048d1caed26954d9c804fe5f"
-        },
-        {
-            "date": 1734768051200,
-            "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-21.log",
-            "hash": "cfb404eac2dcb54665cbcbc0e9fb923767c32e1a005bbbfd2ef9b8134bb315e2"
-        },
-        {
             "date": 1734863966943,
             "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-22.log",
             "hash": "01228fc9a1827576e0d8d217b48acd867f46c531d2c64c9cb41cef0d86c411a5"
@@ -44,6 +29,16 @@
             "date": 1735185388672,
             "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-26.log",
             "hash": "25c5d4d3bae058f532decccc8a6af3c7451da446ada1473b38ec2b1b594971e4"
+        },
+        {
+            "date": 1735272930702,
+            "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-27.log",
+            "hash": "17c58b73486fe6a213c015a1faebee9cc337ba343795f90eb0ca1aafdf7d6373"
+        },
+        {
+            "date": 1735386529064,
+            "name": "C:\\Users\\GOKUL MOORTHY\\Documents\\Projects\\MedPredit\\Medpredit-Backend\\Logs\\2024-12-28.log",
+            "hash": "36618024eae8af065fc9f803c94bba08a8a6d5d0b721642e36768288f6e7c41c"
         }
     ],
     "hashType": "sha256"
