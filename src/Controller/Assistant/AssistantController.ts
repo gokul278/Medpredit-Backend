@@ -309,7 +309,7 @@ const postPastReportController = async (req, res) => {
 
 const postCurrentReportContoller = async (req, res) => {
   try {
-    const { doctorId, patientId, patientGender } = req.body;
+    const { doctorId, patientId, patientGender, hospitalId } = req.body;
 
     let doctorIdVal = req.userData.userid;
 
@@ -320,7 +320,8 @@ const postCurrentReportContoller = async (req, res) => {
     const result = await postCurrentReportModels(
       doctorIdVal,
       patientId,
-      patientGender
+      patientGender,
+      hospitalId
     );
 
     return res.status(200).json(encrypt(result, true));

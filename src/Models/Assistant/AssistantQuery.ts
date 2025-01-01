@@ -308,9 +308,9 @@ FROM
   JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rpt."refPMId" AS INTEGER)
   JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
 WHERE
-  rdm."refHospitalId" = '1'
-  AND rdm."refDoctorId" = $1
-  AND rpm."refPatientId" = $2
+  rdm."refHospitalId" = $1
+  AND rdm."refDoctorId" = $2
+  AND rpm."refPatientId" = $3
   AND DATE(rusd."createdAt") = CURRENT_DATE;
 `;
 
