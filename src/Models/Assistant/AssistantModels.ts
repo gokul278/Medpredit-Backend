@@ -10,7 +10,11 @@ import { Sleep } from "../../Helper/Formula/Sleep";
 import { Stress } from "../../Helper/Formula/Stress";
 import { Tabacco } from "../../Helper/Formula/Tobacco";
 import { Vitals } from "../../Helper/Formula/Vitals";
-import { getQuestionScoreQuery } from "./AssistantQuery";
+import {
+  deleteTreatmentDetails,
+  getQuestionScoreQuery,
+  insertTreatmentDetails,
+} from "./AssistantQuery";
 
 const DB = require("../../Helper/DBConncetion");
 
@@ -539,6 +543,33 @@ export const postAnswersModels = async (
         "199",
         "200",
       ];
+    } else if (categoryId === "201") {
+      answers.forEach(async (element) => {
+        await connection.query(insertTreatmentDetails, [
+          mapId,
+          element.nameOfMedicine,
+          element.category,
+          element.strength,
+          element.roa,
+          element.relationToFood,
+          element.morningdosage,
+          element.morningtime,
+          element.afternoondosage,
+          element.afternoontime,
+          element.eveningdosage,
+          element.eveningtime,
+          element.nightdosage,
+          element.nighttime,
+          element.monthsduration,
+          element.yearsduration,
+          PTcreatedDate,
+          createdAt,
+          createdBy,
+        ]);
+      });
+
+      score = [0];
+      multiCategoryId = ["201"];
     }
 
     const getlatestPTId = await connection.query(getLatestPTIdQuery);
@@ -876,6 +907,9 @@ export const resetScoreModel = async (
         "199",
         "200",
       ];
+    } else if (refQCategoryId === 201) {
+      multiCategoryId = ["201"];
+      await connection.query(deleteTreatmentDetails, [refPatientId, doctorId]);
     }
 
     await Promise.all(
@@ -964,6 +998,7 @@ export const postCurrentReportModels = async (
         "51",
         "12",
         "94",
+        "201",
       ];
 
       if (patientGender === "female") {

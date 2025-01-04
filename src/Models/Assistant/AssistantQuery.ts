@@ -404,9 +404,12 @@ SELECT
      WHEN u."refRoleId" = 1 THEN 'Dr. ' 
      ELSE '' 
    END) || u."refUserFname" || ' ' || u."refUserLname" AS "refUserName",
-  u."refRoleId"
+  u."refRoleId",
+  rh."refHospitalName"
 FROM
   public."Users" u
+  JOIN public."refDoctorMap" rdm ON rdm."refDoctorId" = CAST(u."refUserId" AS TEXT)
+  JOIN public."refHospital" rh ON rh."refHospitalId" = CAST(rdm."refHospitalId" AS INTEGER)
 WHERE
   u."refUserId" = $1;
   `;
@@ -435,4 +438,74 @@ WHERE
   rpm."refPatientId" = $1
   AND rusd."refQCategoryId" = $2
   AND DATE(rpt."refPTcreatedDate") = CURRENT_DATE;
+  `;
+
+export const insertTreatmentDetails = `
+insert into
+  "public"."refTreatmentDetails" (
+    "refPMId",
+    "refTDMedName",
+    "refTDCat",
+    "refTDStrength",
+    "refTDROA",
+    "refTDRTF",
+    "refTDMorningDosage",
+    "refTDMorningDosageTime",
+    "refTDAfternoonDosage",
+    "refTDAfternoonDosageTime",
+    "refTDEveningDosage",
+    "refTDEveningDosageTime",
+    "refTDNightDosage",
+    "refTDNightDosageTime",
+    "refTDDurationMonth",
+    "refTDDurationYear",
+    "refTDCreatedDate",
+    "createdAt",
+    "createdBy"
+  )
+values
+  (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19
+  )
+  `;
+
+export const deleteTreatmentDetails = `
+  DELETE FROM public."refTreatmentDetails" rtd
+  USING public."refPatientMap" rpm, public."refDoctorMap" rdm
+  WHERE rpm."refPMId" = CAST(rtd."refPMId" AS INTEGER)
+    AND rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
+    AND rpm."refPatientId" = $1
+    AND rdm."refDoctorId" = $2
+    AND DATE(rtd."refTDCreatedDate") = CURRENT_DATE;
+  `;
+
+export const getTreatmentDetails = `
+  SELECT
+  *
+FROM
+  public."refTreatmentDetails" rtd
+  JOIN public."refPatientMap" rpm ON rpm."refPMId" = CAST(rtd."refPMId" AS INTEGER)
+  JOIN public."refDoctorMap" rdm ON rdm."refDMId" = CAST(rpm."refDoctorId" AS INTEGER)
+WHERE
+  rpm."refPatientId" = $1
+  AND rdm."refDoctorId" = $2
+  AND DATE (rtd."refTDCreatedDate") = $3
   `;

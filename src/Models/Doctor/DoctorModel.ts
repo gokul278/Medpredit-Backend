@@ -3,6 +3,7 @@ import {
   addPatientTransactionQuery,
   addUserScoreDetailsQuery,
   getLatestPTIdQuery,
+  getTreatmentDetails,
 } from "../Assistant/AssistantQuery";
 import {
   getAllCategoryFamilyHistory,
@@ -95,6 +96,8 @@ export const getCurrentReportDataModel = async (
 ) => {
   const connection = await DB();
 
+  const refPTcreatedDate = getDateOnly();
+
   try {
     const doctorIdResult = await connection.query(getDoctorMap, [
       hospitalId,
@@ -120,6 +123,12 @@ export const getCurrentReportDataModel = async (
 
     const getStressAnswer = await connection.query(getStressAnswerQuery);
 
+    const TreatmentDetails = await connection.query(getTreatmentDetails, [
+      patientId,
+      doctorId,
+      refPTcreatedDate,
+    ]);
+
     return {
       doctorDetail: {
         doctorName: doctor.refUserFname + " " + doctor.refUserLname,
@@ -140,6 +149,7 @@ export const getCurrentReportDataModel = async (
       allScore: getAllScoreResult.rows,
       allScoreVerify: getAllScoreVerify.rows,
       stressAnswer: getStressAnswer.rows,
+      treatmentDetails: TreatmentDetails.rows,
     };
   } catch (error) {
     console.error("Something went Wrong", error);
@@ -240,6 +250,12 @@ export const getPastReportDataModel = async (
 
     const getStressAnswer = await connection.query(getStressAnswerQuery);
 
+    const TreatmentDetails = await connection.query(getTreatmentDetails, [
+      patientId,
+      doctorId,
+      reportDate,
+    ]);
+
     return {
       doctorDetail: {
         doctorName: doctor.refUserFname + " " + doctor.refUserLname,
@@ -260,6 +276,7 @@ export const getPastReportDataModel = async (
       allScore: getAllScoreResult.rows,
       allScoreVerify: getAllScoreVerify.rows,
       stressAnswer: getStressAnswer.rows,
+      treatmentDetails: TreatmentDetails.rows,
     };
   } catch (error) {
     console.error("Something went Wrong", error);
